@@ -14,6 +14,14 @@ local expbar = {
     jobPoints = {},
 };
 
+function GetKeyItemFromName(name)
+    local findKI = AshitaCore:GetResourceManager():GetString('keyitems.names', name, 2);
+    if (findKI ~= nil) then
+        return findKI;
+    end
+    return -1;
+end
+
 local function UpdateTextVisibility(visible)
 	jobText:SetVisible(visible);
 	expText:SetVisible(visible);
@@ -56,6 +64,18 @@ expbar.DrawWindow = function(settings)
     local capPointsProgress = expbar.capacityPoints[1] / expbar.capacityPoints[2];
     local jobPoints = expbar.jobPoints;
 
+    local mastered = player:GetJobPointsSpent(mainJob) == 2100;
+    local masteryEnabled = jobLevel >= 99 and mastered and player:HasKeyItem(expbar.mlBreakerItemId);
+    local masteryProgress = 0;
+    local mlJobLevel = 0;
+    if masteryEnabled then
+        expbar.mastery = { player:GetMasteryExp(), player:GetMasteryExpNeeded() };
+        if expbar.mastery[2] > 0 then
+            masteryProgress = expbar.mastery[1] / expbar.mastery[2];
+        end
+        mlJobLevel = player:GetMasteryJobLevel();
+    end
+
     local meritMode = gConfig.expBarLimitPointsMode and (expPoints[1] == 55999 or ((player:GetIsLimitModeEnabled() or player:GetIsExperiencePointsLocked()) and jobLevel >= 75));
     -- If player is a max level then only enable meritMode in the xp bar if limit mode is specifically enabled
     -- this is so we display capacity points by default
@@ -64,7 +84,9 @@ expbar.DrawWindow = function(settings)
         meritMode = false
     end
     local progressBarProgress = 0
-    if meritMode then
+    if masteryEnabled then
+        progressBarProgress = masteryProgress;
+    elseif meritMode then
         progressBarProgress = limitPointsProgress;
     elseif jobLevel >= 99 then
         progressBarProgress = capPointsProgress;
@@ -84,50 +106,59 @@ expbar.DrawWindow = function(settings)
 
 		-- Draw HP Bar
 		local startX, startY = imgui.GetCursorScreenPos();
-        local col2X = startX + settings.textWidth - imgui.GetStyle().FramePadding.x * 2;
+        -- local col2X = startX + settings.textWidth - imgui.GetStyle().FramePadding.x * 2;
 
         local progressBarWidth = settings.barWidth - imgui.GetStyle().FramePadding.x * 2;
         if inlineMode then
-            imgui.SetCursorScreenPos({col2X, startY});
+            imgui.SetCursorScreenPos({ startX, startY });
         end
-		progressbar.ProgressBar({{progressBarProgress, {'#c39040', '#e9c466'}}}, {progressBarWidth, settings.barHeight}, {decorate = gConfig.showExpBarBookends});
+        progressbar.ProgressBar({ { progressBarProgress, { '#c39040', '#e9c466' } } }, { progressBarWidth, settings.barHeight }, { decorate = gConfig.showExpBarBookends });
 
-		imgui.SameLine();
+        imgui.SameLine();
 
         local textY = inlineMode and startY or startY + settings.barHeight + settings.textOffsetY;
         local textXRightAlign = startX + settings.textWidth - imgui.GetStyle().FramePadding.x * 4;
 
 		-- Update our text objects
-
         if gConfig.expBarShowText then
             -- Job Text
             local mainJobString = AshitaCore:GetResourceManager():GetString('jobs.names_abbr', mainJob);
             local subJobString = AshitaCore:GetResourceManager():GetString('jobs.names_abbr', subJob);
-            local jobString = mainJobString .. ' ' .. jobLevel .. ' / ' .. subJobString .. ' ' .. subJobLevel;
+
+            local jobLevelString = jobLevel;
+            if masteryEnabled then
+                jobLevelString = 'ML' .. mlJobLevel;
+            end
+
+            local jobString = mainJobString .. ' ' .. jobLevelString .. ' / ' .. subJobString .. ' ' .. subJobLevel;
             jobText:SetText(jobString);
-            local textW, textH = jobText:get_text_size();
-            jobText:SetPositionX(startX);
-            jobText:SetPositionY(inlineMode and textY + (settings.barHeight - textH) / 2 - 1 or textY); -- - jobText:GetFontHeight() / 2.5);
+            local jobTextW, jobTextH = jobText:get_text_size();
+            local jobTextX = inlineMode and startX + progressBarWidth + 10 or startX
+            jobText:SetPositionX(jobTextX);
+            jobText:SetPositionY(inlineMode and textY + (settings.barHeight - jobTextH) / 2 - 1 or textY); -- - jobText:GetFontHeight() / 2.5);
 
             -- Exp Text
-            if meritMode then
+            local expString = '';
+            if masteryEnabled then
+                expString = 'JP (' .. jobPoints[1] .. ' / ' .. jobPoints[2] .. ')' .. '  MP (' .. meritPoints[1] .. ' / ' .. meritPoints[2] .. ')' .. '  EXP (' .. expbar.mastery[1] .. ' / ' .. expbar.mastery[2] .. ')';
+            elseif meritMode then
                 if jobLevel >= 99 then
-                    local expString = 'JP (' .. jobPoints[1] .. ' / ' .. jobPoints[2] .. ')' .. ' MP (' .. meritPoints[1] .. ' / ' .. meritPoints[2] .. ')' .. ' LP (' .. limitPoints[1] .. ' / ' .. limitPoints[2] .. ')';
-                    expText:SetText(expString);
+                    expString = 'JP (' .. jobPoints[1] .. ' / ' .. jobPoints[2] .. ')' .. '  MP (' .. meritPoints[1] .. ' / ' .. meritPoints[2] .. ')' .. '  LP (' .. limitPoints[1] .. ' / ' .. limitPoints[2] .. ')';
                 else
-                    local expString = 'MP (' .. meritPoints[1] .. ' / ' .. meritPoints[2] .. ')' .. ' LP (' .. limitPoints[1] .. ' / ' .. limitPoints[2] .. ')';
-                    expText:SetText(expString);
+                    expString = 'MP (' .. meritPoints[1] .. ' / ' .. meritPoints[2] .. ')' .. '  LP (' .. limitPoints[1] .. ' / ' .. limitPoints[2] .. ')';
                 end
             elseif jobLevel >= 99 then
-                local expString = 'JP (' .. jobPoints[1] .. ' / ' .. jobPoints[2] .. ')' .. ' MP (' .. meritPoints[1] .. ' / ' .. meritPoints[2] .. ')' .. ' CP (' .. capPoints[1] .. ' / ' .. capPoints[2] .. ')';
-                expText:SetText(expString);
+                expString = 'JP (' .. jobPoints[1] .. ' / ' .. jobPoints[2] .. ')' .. '  MP (' .. meritPoints[1] .. ' / ' .. meritPoints[2] .. ')' .. '  CP (' .. capPoints[1] .. ' / ' .. capPoints[2] .. ')';
             else
-                local expString = 'EXP (' .. expPoints[1] .. ' / ' .. expPoints[2] .. ')';
-                expText:SetText(expString);
+                expString = 'EXP (' .. expPoints[1] .. ' / ' .. expPoints[2] .. ')';
             end
-            local textW, textH = expText:get_text_size();
-            expText:SetPositionX(textXRightAlign);
-            expText:SetPositionY(inlineMode and textY + (settings.barHeight - textH) / 2 - 1 or textY); -- - expText:GetFontHeight() / 2.5);
+
+            expText:SetText(expString);
+            expText:SetRightJustified(settings.exp_font_settings.right_justified and not inlineMode);
+
+            local expTextW, expTextH = expText:get_text_size();
+            expText:SetPositionX(inlineMode and jobTextX + jobTextW + 30 or textXRightAlign);
+            expText:SetPositionY(inlineMode and textY + (settings.barHeight - expTextH) / 2 - 1 or textY); -- - expText:GetFontHeight() / 2.5);
 
             jobText:SetVisible(true);
             expText:SetVisible(true);
@@ -156,7 +187,6 @@ expbar.DrawWindow = function(settings)
             percentText:SetText('');
             percentText:SetVisible(false);
         end
-
     end
 	imgui.End();
 end
@@ -173,7 +203,9 @@ expbar.Initialize = function(settings)
     local currJob = player:GetMainJob();
     expbar.capacityPoints = { player:GetCapacityPoints(currJob), 30000 };
     expbar.jobPoints = { player:GetJobPoints(currJob), 500 };
-    -- expbar.mastery = { player:GetMasteryExp(), player:GetMasteryExpNeeded() };
+    expbar.mastery = { player:GetMasteryExp(), player:GetMasteryExpNeeded() };
+
+    expbar.mlBreakerItemId = GetKeyItemFromName('master breaker')
 end
 
 expbar.UpdateFonts = function(settings)
@@ -213,8 +245,16 @@ expbar.HandlePacket = function(e)
                 -- print('Merit points: ' .. expbar.meritPoints[1] .. ' / ' .. expbar.meritPoints[2] .. ' #' .. msgId);
             elseif msgId == 719 then
                 expbar.jobPoints[1] = val;
+            elseif msgId == 809 or msgId == 810 then
+                expbar.mastery[1] = expbar.mastery[1] + val;
             end
         end
+    elseif e.id == 0x061 then
+        -- tValues.default.exp.curr = struct.unpack('H', e.data_modified, 0x011);
+        -- tValues.default.exp.max = struct.unpack('H', e.data_modified, 0x13);
+        expbar.mastery[1] = struct.unpack('I', e.data_modified, 0x69);
+        expbar.mastery[2] = struct.unpack('I', e.data_modified, 0x6D);
+        -- expbar.accolades = math.floor(e.data_modified:byte(0x5A) / 4) + e.data_modified:byte(0x5B) * 2 ^ 6 + e.data_modified:byte(0x5C) * 2 ^ 14;
     elseif e.id == 0x063 then
         if e.data_modified:byte(5) == 2 then
             expbar.limitPoints[1] = struct.unpack('H', e.data_modified, 0x08 + 1);
@@ -227,6 +267,11 @@ expbar.HandlePacket = function(e)
             expbar.capacityPoints[1] = struct.unpack('H', e.data_modified, jobOffset);
             expbar.jobPoints[1] = struct.unpack('H', e.data_modified, jobOffset + 2);
         end
+    -- elseif (e.id == 0x110) then
+    --     expbar.sparks = struct.unpack('I', e.data, 0x05);
+    -- elseif (e.id == 0x113) then
+    --     expbar.sparks = struct.unpack('I', e.data, 0x75);
+    --     expbar.accolades = struct.unpack('I', e.data, 0xE5);
     end
 end
 
