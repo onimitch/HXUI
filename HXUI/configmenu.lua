@@ -28,7 +28,7 @@ config.DrawWindow = function(us)
         end
         imgui.BeginChild("Config Options", { 0, 0 }, true);
         if (imgui.CollapsingHeader("General")) then
-            imgui.BeginChild("GeneralSettings", { 0, 210 }, true);
+            imgui.BeginChild("GeneralSettings", { 0, 240 }, true);
             if (imgui.Checkbox('Lock HUD Position', { gConfig.lockPositions })) then
                 gConfig.lockPositions = not gConfig.lockPositions;
                 UpdateSettings();
@@ -97,10 +97,15 @@ config.DrawWindow = function(us)
                 UpdateSettings();
             end
 
+            if (imgui.Checkbox('Hide When Chat Expanded', { gConfig.hideWhenChatExpanded })) then
+                gConfig.hideWhenChatExpanded = not gConfig.hideWhenChatExpanded;
+                UpdateSettings();
+            end
+
             imgui.EndChild();
         end
         if (imgui.CollapsingHeader("Player Bar")) then
-            imgui.BeginChild("PlayerBarSettings", { 0, 210 }, true);
+            imgui.BeginChild("PlayerBarSettings", { 0, 240 }, true);
             if (imgui.Checkbox('Enabled', { gConfig.showPlayerBar })) then
                 gConfig.showPlayerBar = not gConfig.showPlayerBar;
                 UpdateSettings();
@@ -112,6 +117,10 @@ config.DrawWindow = function(us)
             if (imgui.Checkbox('Hide During Events', { gConfig.playerBarHideDuringEvents })) then
                 gConfig.playerBarHideDuringEvents = not gConfig.playerBarHideDuringEvents;
                 UpdateSettings();
+            end
+            if (imgui.Checkbox('Hide When Chat Expanded', { gConfig.playerBarHideWhenChatExpanded })) then
+              gConfig.playerBarHideWhenChatExpanded = not gConfig.playerBarHideWhenChatExpanded;
+              UpdateSettings();
             end
             if (imgui.Checkbox('Always Show MP Bar', { gConfig.alwaysShowMpBar })) then
                 gConfig.alwaysShowMpBar = not gConfig.alwaysShowMpBar;
@@ -136,7 +145,7 @@ config.DrawWindow = function(us)
             imgui.EndChild();
         end
         if (imgui.CollapsingHeader("Target Bar")) then
-            imgui.BeginChild("TargetBarSettings", { 0, 270 }, true);
+            imgui.BeginChild("TargetBarSettings", { 0, 300 }, true);
             if (imgui.Checkbox('Enabled', { gConfig.showTargetBar })) then
                 gConfig.showTargetBar = not gConfig.showTargetBar;
                 UpdateSettings();
@@ -148,6 +157,10 @@ config.DrawWindow = function(us)
             if (imgui.Checkbox('Hide During Events', { gConfig.targetBarHideDuringEvents })) then
                 gConfig.targetBarHideDuringEvents = not gConfig.targetBarHideDuringEvents;
                 UpdateSettings();
+            end
+            if (imgui.Checkbox('Hide When Chat Expanded', { gConfig.targetBarHideWhenChatExpanded })) then
+              gConfig.targetBarHideWhenChatExpanded = not gConfig.targetBarHideWhenChatExpanded;
+              UpdateSettings();
             end
             if (imgui.Checkbox('Show Enemy Id', { gConfig.showEnemyId })) then
                 gConfig.showEnemyId = not gConfig.showEnemyId;
@@ -214,7 +227,7 @@ config.DrawWindow = function(us)
             imgui.EndChild();
         end
         if (imgui.CollapsingHeader("Party List")) then
-            imgui.BeginChild("PartyListSettings", { 0, 460 }, true);
+            imgui.BeginChild("PartyListSettings", { 0, 490 }, true);
             if (imgui.Checkbox('Enabled', { gConfig.showPartyList })) then
                 gConfig.showPartyList = not gConfig.showPartyList;
                 UpdateSettings();
@@ -236,7 +249,11 @@ config.DrawWindow = function(us)
                 UpdateSettings();
             end
             if (imgui.Checkbox('Hide During Events', { gConfig.partyListHideDuringEvents })) then
-                gConfig.partyListHideDuringEvents = not gConfig.partyListHideDuringEvents;
+              gConfig.partyListHideDuringEvents = not gConfig.partyListHideDuringEvents;
+              UpdateSettings();
+            end
+            if (imgui.Checkbox('Hide When Chat Expanded', { gConfig.partyListHideWhenChatExpanded })) then
+                gConfig.partyListHideWhenChatExpanded = not gConfig.partyListHideWhenChatExpanded;
                 UpdateSettings();
             end
             if (imgui.Checkbox('Align Bottom', { gConfig.partyListAlignBottom })) then

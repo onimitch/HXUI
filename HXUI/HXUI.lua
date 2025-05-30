@@ -24,7 +24,7 @@
 
 addon.name      = 'HXUI';
 addon.author    = 'Team HXUI (Tirem, Shuu, colorglut, RheaCloud)';
-addon.version   = '1.1.1-onimitch4';
+addon.version   = '1.1.2-onimitch4';
 addon.desc      = 'Multiple UI elements with manager';
 addon.link      = 'https://github.com/tirem/HXUI'
 
@@ -107,6 +107,7 @@ T{
 	lockPositions = false,
     tooltipScale = 1.0,
     hideDuringEvents = true,
+    hideWhenChatExpanded = true,
 
 	showPlayerBar = true,
 	showTargetBar = true,
@@ -129,6 +130,7 @@ T{
 	showPlayerBarBookends = true,
 	alwaysShowMpBar = true,
     playerBarHideDuringEvents = true,
+    playerBarHideWhenChatExpanded = true,
 
 	targetBarScaleX = 1,
 	targetBarScaleY = 1,
@@ -138,6 +140,7 @@ T{
 	showEnemyId = false;
 	alwaysShowHealthPercent = false,
     targetBarHideDuringEvents = true,
+    targetBarHideWhenChatExpanded = true,
 
 	enemyListScaleX = 1,
 	enemyListScaleY = 1,
@@ -197,6 +200,7 @@ T{
 	partyListBackgroundName = 'Window1',
 
     partyListHideDuringEvents = true,
+    partyListHideWhenChatExpanded = true,
     partyListExpandHeight = false,
     partyListAlignBottom = false,
     partyListMinRows = 1,
@@ -806,6 +810,7 @@ end
 local pGameMenu = ashita.memory.find('FFXiMain.dll', 0, "8B480C85C974??8B510885D274??3B05", 16, 0);
 local pEventSystem = ashita.memory.find('FFXiMain.dll', 0, "A0????????84C0741AA1????????85C0741166A1????????663B05????????0F94C0C3", 0, 0);
 local pInterfaceHidden = ashita.memory.find('FFXiMain.dll', 0, "8B4424046A016A0050B9????????E8????????F6D81BC040C3", 0, 0);
+local pChatExpanded = ashita.memory.find('FFXiMain.dll', 0, '83EC??B9????????E8????????0FBF4C24??84C0', 0x04, 0);
 
 local function GetMenuName()
     local subPointer = ashita.memory.read_uint32(pGameMenu);
@@ -843,10 +848,23 @@ local function GetInterfaceHidden()
     return (ashita.memory.read_uint8(ptr + 0xB4) == 1);
 end
 
+local function GetChatExpanded()
+  local ptr = ashita.memory.read_uint32(pChatExpanded)
+  if (ptr == 0) then
+      return false
+  end
+
+  return (ashita.memory.read_uint8(ptr + 0xF1) ~= 0);
+end
+
 function GetHidden()
 
 	if (gConfig.hideDuringEvents and GetEventSystemActive()) then
     	return true;
+    end
+
+    if (gConfig.hideWhenChatExpanded and GetChatExpanded()) then
+        return true;
     end
 
 	if (string.match(GetMenuName(), 'map')) then
@@ -870,14 +888,15 @@ end
 --]]
 ashita.events.register('d3d_present', 'present_cb', function ()
     local eventSystemActive = GetEventSystemActive();
+    local chatExpanded = GetChatExpanded();
 
 	if (GetHidden() == false) then
-		if (not gConfig.showPlayerBar or (gConfig.playerBarHideDuringEvents and eventSystemActive)) then
+		if (not gConfig.showPlayerBar or (gConfig.playerBarHideDuringEvents and eventSystemActive) or (gConfig.playerBarHideWhenChatExpanded and chatExpanded)) then
             playerBar.SetHidden(true);
         else
 			playerBar.DrawWindow(gAdjustedSettings.playerBarSettings);
 		end
-        if (not gConfig.showTargetBar or (gConfig.targetBarHideDuringEvents and eventSystemActive)) then
+        if (not gConfig.showTargetBar or (gConfig.targetBarHideDuringEvents and eventSystemActive) or (gConfig.targetBarHideWhenChatExpanded and chatExpanded)) then
             targetBar.SetHidden(true);
         else
 			targetBar.DrawWindow(gAdjustedSettings.targetBarSettings);
@@ -894,7 +913,7 @@ ashita.events.register('d3d_present', 'present_cb', function ()
 		if (gConfig.showInventoryTracker) then
 			inventoryTracker.DrawWindow(gAdjustedSettings.inventoryTrackerSettings);
 		end
-        if (not gConfig.showPartyList or (gConfig.partyListHideDuringEvents and eventSystemActive)) then
+        if (not gConfig.showPartyList or (gConfig.partyListHideDuringEvents and eventSystemActive) or (gConfig.partyListHideWhenChatExpanded and chatExpanded)) then
             partyList.SetHidden(true);
         else
 			partyList.DrawWindow(gAdjustedSettings.partyListSettings);
