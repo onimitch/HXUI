@@ -1,5 +1,4 @@
 -- Pulled from statustimers - Copyright (c) 2022 Heals
-
 -------------------------------------------------------------------------------
 -- imports
 -------------------------------------------------------------------------------
@@ -14,18 +13,16 @@ local d3d8_device = d3d8.get_device();
 -------------------------------------------------------------------------------
 -- local constants
 -------------------------------------------------------------------------------
-local icon_cache = T{
-};
+local icon_cache = T {};
 
 local buffIcon = nil;
 local debuffIcon = nil;
 
-local jobIcons = T{};
+local jobIcons = T {};
 
 -- this table implements overrides for certain icons to handle
 -- local buffs_table = nil;
-local id_overrides = T{
-};
+local id_overrides = T {};
 -------------------------------------------------------------------------------
 -- local functions
 -------------------------------------------------------------------------------
@@ -59,7 +56,9 @@ local function load_status_icon_from_resource(status_id)
     local icon = AshitaCore:GetResourceManager():GetStatusIconByIndex(status_id);
     if (icon ~= nil) then
         local dx_texture_ptr = ffi.new('IDirect3DTexture8*[1]');
-        if (ffi.C.D3DXCreateTextureFromFileInMemoryEx(d3d8_device, icon.Bitmap, icon.ImageSize, 0xFFFFFFFF, 0xFFFFFFFF, 1, 0, ffi.C.D3DFMT_A8R8G8B8, ffi.C.D3DPOOL_MANAGED, ffi.C.D3DX_DEFAULT, ffi.C.D3DX_DEFAULT, 0xFF000000, nil, nil, dx_texture_ptr) == ffi.C.S_OK) then
+        if (ffi.C.D3DXCreateTextureFromFileInMemoryEx(d3d8_device, icon.Bitmap, icon.ImageSize, 0xFFFFFFFF, 0xFFFFFFFF,
+            1, 0, ffi.C.D3DFMT_A8R8G8B8, ffi.C.D3DPOOL_MANAGED, ffi.C.D3DX_DEFAULT, ffi.C.D3DX_DEFAULT, 0xFF000000, nil,
+            nil, dx_texture_ptr) == ffi.C.S_OK) then
             return d3d8.gc_safe_release(ffi.cast('IDirect3DTexture8*', dx_texture_ptr[0]));
         end
     end
@@ -77,7 +76,7 @@ local function load_status_icon_from_theme(theme, status_id)
 
     local icon_path = nil;
     local supports_alpha = false;
-    T{'.png', '.jpg', '.jpeg', '.bmp'}:forieach(function(ext, _)
+    T {'.png', '.jpg', '.jpeg', '.bmp'}:forieach(function(ext, _)
         if (icon_path ~= nil) then
             return;
         end
@@ -105,7 +104,9 @@ local function load_status_icon_from_theme(theme, status_id)
         end
     else
         -- use black as colour-key for transparency
-        if (ffi.C.D3DXCreateTextureFromFileExA(d3d8_device, icon_path, 0xFFFFFFFF, 0xFFFFFFFF, 1, 0, ffi.C.D3DFMT_A8R8G8B8, ffi.C.D3DPOOL_MANAGED, ffi.C.D3DX_DEFAULT, ffi.C.D3DX_DEFAULT, 0xFF000000, nil, nil, dx_texture_ptr) == ffi.C.S_OK) then
+        if (ffi.C.D3DXCreateTextureFromFileExA(d3d8_device, icon_path, 0xFFFFFFFF, 0xFFFFFFFF, 1, 0,
+            ffi.C.D3DFMT_A8R8G8B8, ffi.C.D3DPOOL_MANAGED, ffi.C.D3DX_DEFAULT, ffi.C.D3DX_DEFAULT, 0xFF000000, nil, nil,
+            dx_texture_ptr) == ffi.C.S_OK) then
             return d3d8.gc_safe_release(ffi.cast('IDirect3DTexture8*', dx_texture_ptr[0]));
         end
     end
@@ -120,13 +121,13 @@ ptrPartyBuffs = ashita.memory.read_uint32(ptrPartyBuffs);
 local function ReadPartyBuffsFromMemory()
     local ptrPartyBuffs = ashita.memory.read_uint32(AshitaCore:GetPointerManager():Get('party.statusicons'));
     local partyBuffTable = {};
-    for memberIndex = 0,4 do
+    for memberIndex = 0, 4 do
         local memberPtr = ptrPartyBuffs + (0x30 * memberIndex);
         local playerId = ashita.memory.read_uint32(memberPtr);
         if (playerId ~= 0) then
             local buffs = {};
             local empty = false;
-            for buffIndex = 0,31 do
+            for buffIndex = 0, 31 do
                 if empty then
                     buffs[buffIndex + 1] = -1;
                 else
@@ -161,10 +162,10 @@ statusHandler.get_job_theme_paths = function()
     local path = ('%s\\addons\\%s\\assets\\jobs\\'):fmt(AshitaCore:GetInstallPath(), 'HXUI');
     local directories = ashita.fs.get_directory(path);
     if (directories ~= nil) then
-        directories[#directories+1] = '-None-';
+        directories[#directories + 1] = '-None-';
         return directories;
     end
-    return T{'-None-'};
+    return T {'-None-'};
 end
 
 -- render the tooltip for a specific status id
@@ -180,12 +181,12 @@ statusHandler.render_tooltip = function(status)
     local name = resMan:GetString('buffs.names', status);
     if (name ~= nil and info ~= nil) then
         imgui.BeginTooltip();
-            imgui.SetWindowFontScale(gConfig.tooltipScale);
-            imgui.Text(('%s (#%d)'):fmt(encoding:ShiftJIS_To_UTF8(name, true), status));
-            if (info.Description[1] ~= nil) then
-                imgui.Text(encoding:ShiftJIS_To_UTF8(info.Description[1], true));
-            end
-            imgui.SetWindowFontScale(1);
+        imgui.SetWindowFontScale(gConfig.tooltipScale);
+        imgui.Text(('%s (#%d)'):fmt(encoding:ShiftJIS_To_UTF8(name, true), status));
+        if (info.Description[1] ~= nil) then
+            imgui.Text(encoding:ShiftJIS_To_UTF8(info.Description[1], true));
+        end
+        imgui.SetWindowFontScale(1);
         imgui.EndTooltip();
     end
 end
@@ -196,11 +197,11 @@ statusHandler.get_status_theme_paths = function()
     local path = ('%s\\addons\\%s\\assets\\status\\'):fmt(AshitaCore:GetInstallPath(), 'HXUI');
     local directories = ashita.fs.get_directory(path);
     if (directories ~= nil) then
-        directories[#directories+1] = '-Default-';
+        directories[#directories + 1] = '-Default-';
         return directories;
     end
-    return T{'-Default-'};
-end 
+    return T {'-Default-'};
+end
 
 -- return a list of all sub directories
 ---@return table theme_paths
@@ -208,7 +209,7 @@ statusHandler.get_background_paths = function()
     local path = ('%s\\addons\\%s\\assets\\backgrounds\\'):fmt(AshitaCore:GetInstallPath(), 'HXUI');
     local directories = ashita.fs.get_dir(path, '.*.png', true);
     if (directories ~= nil) then
-        local backgrounds = { '-None-' };
+        local backgrounds = {'-None-'};
         for _, filename in ipairs(directories) do
             local bg_name = filename:match('(.+)%-bg.png');
             if bg_name ~= nil then
@@ -217,8 +218,8 @@ statusHandler.get_background_paths = function()
         end
         return backgrounds;
     end
-    return T{};
-end 
+    return T {};
+end
 
 -- return a list of all sub directories
 ---@return table theme_paths
@@ -228,8 +229,8 @@ statusHandler.get_cursor_paths = function()
     if (directories ~= nil) then
         return directories;
     end
-    return T{};
-end 
+    return T {};
+end
 
 -- return an image pointer for a status_id for use with imgui.Image
 ---@param status_id number the status id number of the requested icon
@@ -264,7 +265,7 @@ end
 ---@return number theme_index
 statusHandler.get_theme_index = function(theme)
     local paths = statusHandler.get_theme_paths();
-    for i = 1,#paths,1 do
+    for i = 1, #paths, 1 do
         if (paths[i] == theme) then
             return i;
         end
@@ -274,10 +275,10 @@ end
 
 -- reset the icon cache and release all resources
 statusHandler.clear_cache = function()
-    icon_cache = T{};
+    icon_cache = T {};
     buffIcon = nil;
     debuffIcon = nil;
-    jobIcons = T{};
+    jobIcons = T {};
 end;
 
 -- return a table of status ids for a party member based on server id.
@@ -301,7 +302,6 @@ statusHandler.GetBackground = function(isBuff)
     end
 end
 
-
 statusHandler.GetJobIcon = function(jobIdx)
 
     if (jobIdx == nil or jobIdx == 0 or jobIdx == -1) then
@@ -319,20 +319,20 @@ statusHandler.GetJobIcon = function(jobIdx)
     return tonumber(ffi.cast("uint32_t", jobIcons[jobStr].image));
 end
 
---Call with incoming packet 0x076
+-- Call with incoming packet 0x076
 statusHandler.ReadPartyBuffsFromPacket = function(e)
     local partyBuffTable = {};
-    for i = 0,4 do
+    for i = 0, 4 do
         local memberOffset = 0x04 + (0x30 * i) + 1;
         local memberId = struct.unpack('L', e.data, memberOffset);
         if memberId > 0 then
             local buffs = {};
             local empty = false;
-            for j = 0,31 do
+            for j = 0, 31 do
                 if empty then
                     buffs[j + 1] = -1;
                 else
-                    --This is at offset 8 from member start.. memberoffset is using +1 for the lua struct.unpacks
+                    -- This is at offset 8 from member start.. memberoffset is using +1 for the lua struct.unpacks
                     local highBits = bit.lshift(ashita.bits.unpack_be(e.data_raw, memberOffset + 7, j * 2, 2), 8);
                     local lowBits = struct.unpack('B', e.data, memberOffset + 0x10 + j);
                     local buff = highBits + lowBits;
@@ -347,7 +347,7 @@ statusHandler.ReadPartyBuffsFromPacket = function(e)
             partyBuffTable[memberId] = buffs;
         end
     end
-    partyBuffs =  partyBuffTable;
+    partyBuffs = partyBuffTable;
 end
 
 return statusHandler;

@@ -1,72 +1,71 @@
 require('common');
 
 local buffTable = {};
-    
-buffTable.spellToDebuff = T{
-    [230] = 135, --bio
-    [23] = 134, --dia
-    [24] = 134, --dia_II
-    [25] = 134, --dia_III
-    [58] = 4, --paralyze
-    [80] = 4, --paralyze_II
-    [56] = 13, --slow
-    [79] = 13, --slow_II
+
+buffTable.spellToDebuff = T {
+    [230] = 135, -- bio
+    [23] = 134, -- dia
+    [24] = 134, -- dia_II
+    [25] = 134, -- dia_III
+    [58] = 4, -- paralyze
+    [80] = 4, -- paralyze_II
+    [56] = 13, -- slow
+    [79] = 13, -- slow_II
     [357] = 13, -- slowga
-    [216] = 12, --gravity
-    [217] = 12, --gravity_II
-    [254] = 5, --blind
-    [276] = 5, --blind_II
-    [361] = 5, --blindga
-    [59] = 6, --silence
-    [359] = 6, --silencega
-    [253] = 2, --sleep
-    [259] = 2, --sleep_II
-    [273] = 2, --sleepga
-    [274] = 2, --sleepga_II
-    [258] = 11, --bind
-    [362] = 11, --bindga
-    [252] = 10, --stun
-    [220] = 3, --poison
-    [221] = 3, --poison_II
-    [222] = 3, --poison_III
-    [223] = 3, --poison_IV
-    [224] = 3, --poison_V
-    [225] = 3, --poisonga
-    [226] = 3, --poisonga_II
-    [227] = 3, --poisonga_III
-    [228] = 3, --poisonga_IV
-    [229] = 3, --poisonga_V
-    [536] = 3, --poison_breath ? is this correct?
-    [239] = 132, --shock
-    [238] = 131, --rasp
-    [237] = 130, --choke
-    [236] = 129, --frost
-    [608] = 129, --frost_breath ? is this correct?
-    [235] = 128, --burn
-    [240] = 133, --drown
-    [421] = 194, --battlefield_elegy
-    [422] = 194, --carnage_elegy
-    [423] = 194, --massacre_elegy
-    [368] = 192, --requiem_1
-    [369] = 192, --requiem_2
-    [370] = 192, --requiem_3
-    [371] = 192, --requiem_4
-    [372] = 192, --requiem_5
-    [373] = 192, --requiem_6
-    [463] = 193, --foe_lullaby
-    [376] = 193, --horde_lullaby
-    [454] = 217, --fire_threnody
-    [455] = 217, --ice_threnody
-    [456] = 217, --wind_threnody
-    [457] = 217, --earth_threnody
-    [458] = 217, --lightning_threnody
-    [459] = 217, --water_threnody
-    [460] = 217, --light_threnody
-    [461] = 217, --dark_threnody
+    [216] = 12, -- gravity
+    [217] = 12, -- gravity_II
+    [254] = 5, -- blind
+    [276] = 5, -- blind_II
+    [361] = 5, -- blindga
+    [59] = 6, -- silence
+    [359] = 6, -- silencega
+    [253] = 2, -- sleep
+    [259] = 2, -- sleep_II
+    [273] = 2, -- sleepga
+    [274] = 2, -- sleepga_II
+    [258] = 11, -- bind
+    [362] = 11, -- bindga
+    [252] = 10, -- stun
+    [220] = 3, -- poison
+    [221] = 3, -- poison_II
+    [222] = 3, -- poison_III
+    [223] = 3, -- poison_IV
+    [224] = 3, -- poison_V
+    [225] = 3, -- poisonga
+    [226] = 3, -- poisonga_II
+    [227] = 3, -- poisonga_III
+    [228] = 3, -- poisonga_IV
+    [229] = 3, -- poisonga_V
+    [536] = 3, -- poison_breath ? is this correct?
+    [239] = 132, -- shock
+    [238] = 131, -- rasp
+    [237] = 130, -- choke
+    [236] = 129, -- frost
+    [608] = 129, -- frost_breath ? is this correct?
+    [235] = 128, -- burn
+    [240] = 133, -- drown
+    [421] = 194, -- battlefield_elegy
+    [422] = 194, -- carnage_elegy
+    [423] = 194, -- massacre_elegy
+    [368] = 192, -- requiem_1
+    [369] = 192, -- requiem_2
+    [370] = 192, -- requiem_3
+    [371] = 192, -- requiem_4
+    [372] = 192, -- requiem_5
+    [373] = 192, -- requiem_6
+    [463] = 193, -- foe_lullaby
+    [376] = 193, -- horde_lullaby
+    [454] = 217, -- fire_threnody
+    [455] = 217, -- ice_threnody
+    [456] = 217, -- wind_threnody
+    [457] = 217, -- earth_threnody
+    [458] = 217, -- lightning_threnody
+    [459] = 217, -- water_threnody
+    [460] = 217, -- light_threnody
+    [461] = 217 -- dark_threnody
 };
 
-
-buffTable.spAbilitys = T{
+buffTable.spAbilitys = T {
     ['WAR'] = 1, -- Mighty Strikes',
     ['MNK'] = 1, -- Hundred Fists',
     ['WHM'] = 1, -- Benediction',
@@ -88,10 +87,10 @@ buffTable.spAbilitys = T{
     ['DNC'] = 1, -- Trance',
     ['SCH'] = 1, -- Tabula Rasa',
     ['GEO'] = 1, -- Bolster',
-    ['RUN'] = 1, -- Elemental Sforzo'
+    ['RUN'] = 1 -- Elemental Sforzo'
 }
 
-buffTable.spellcasters = T{
+buffTable.spellcasters = T {
     ['WHM'] = 1,
     ['BLM'] = 1,
     ['RDM'] = 1,
@@ -101,10 +100,10 @@ buffTable.spellcasters = T{
     ['BLU'] = 1,
     ['SCH'] = 1,
     ['GEO'] = 1,
-    ['RUN'] = 1,
+    ['RUN'] = 1
 }
 
-buffTable.jugPets = T{
+buffTable.jugPets = T {
     ['HareFamiliar'] = 1,
     ['SheepFamiliar'] = 1,
     ['FlowerpotBill'] = 1,
@@ -180,8 +179,7 @@ buffTable.jugPets = T{
 }
 
 -- all of our status effects, 1 being debuffs, 0 being buffs
-buffTable.statusEffects =
-T{
+buffTable.statusEffects = T {
     [1] = 1, -- weakness',
     [2] = 1, -- sleep',
     [3] = 1, -- poison',
@@ -803,7 +801,7 @@ T{
     [773] = 0, --    ABYSSEA_MND             
     [774] = 0, --    ABYSSEA_CHR             
     [775] = 0, --    ABYSSEA_HP              
-    [776] = 0, --    ABYSSEA_MP              
+    [776] = 0 --    ABYSSEA_MP              
 }
 
 buffTable.GetBuffIdBySpellId = function(spellId)
@@ -826,6 +824,5 @@ end
 buffTable.GetSpAbilityName = function(jobAbv)
     return buffTable.spAbilitys[jobAbv];
 end
-
 
 return buffTable;

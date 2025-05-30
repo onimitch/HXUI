@@ -11,13 +11,13 @@ local expbar = {
     limitPoints = {},
     meritPoints = {},
     capacityPoints = {},
-    jobPoints = {},
+    jobPoints = {}
 };
 
 local function UpdateTextVisibility(visible)
-	jobText:SetVisible(visible);
-	expText:SetVisible(visible);
-	percentText:SetVisible(visible);
+    jobText:SetVisible(visible);
+    expText:SetVisible(visible);
+    percentText:SetVisible(visible);
 end
 
 --[[
@@ -28,22 +28,22 @@ expbar.DrawWindow = function(settings)
     -- Obtain the player entity..
     local player = AshitaCore:GetMemoryManager():GetPlayer();
 
-	if (player == nil) then
-		UpdateTextVisibility(false);
-		return;
-	end
+    if (player == nil) then
+        UpdateTextVisibility(false);
+        return;
+    end
 
-	local mainJob = player:GetMainJob();
+    local mainJob = player:GetMainJob();
 
     if (player.isZoning or mainJob == 0) then
-		UpdateTextVisibility(false);
+        UpdateTextVisibility(false);
         return;
-	end
+    end
 
     local jobLevel = player:GetMainJobLevel();
     local subJob = player:GetSubJob();
     local subJobLevel = player:GetSubJobLevel();
-    local expPoints = { player:GetExpCurrent(), player:GetExpNeeded() };
+    local expPoints = {player:GetExpCurrent(), player:GetExpNeeded()};
     local expPointsProgress = expPoints[1] / expPoints[2];
 
     local limitPoints = expbar.limitPoints;
@@ -56,7 +56,10 @@ expbar.DrawWindow = function(settings)
     local capPointsProgress = expbar.capacityPoints[1] / expbar.capacityPoints[2];
     local jobPoints = expbar.jobPoints;
 
-    local meritMode = gConfig.expBarLimitPointsMode and (expPoints[1] == 55999 or ((player:GetIsLimitModeEnabled() or player:GetIsExperiencePointsLocked()) and jobLevel >= 75));
+    local meritMode = gConfig.expBarLimitPointsMode and
+                          (expPoints[1] == 55999 or
+                              ((player:GetIsLimitModeEnabled() or player:GetIsExperiencePointsLocked()) and jobLevel >=
+                                  75));
     -- If player is a max level then only enable meritMode in the xp bar if limit mode is specifically enabled
     -- this is so we display capacity points by default
     -- TODO: Tapping on Exp bar switches between merit mode and capacity points
@@ -73,31 +76,37 @@ expbar.DrawWindow = function(settings)
     end
 
     local inlineMode = gConfig.expBarInlineMode;
-    local windowSize = inlineMode and settings.barWidth + settings.textWidth or math.max(settings.barWidth, settings.textWidth);
+    local windowSize = inlineMode and settings.barWidth + settings.textWidth or
+                           math.max(settings.barWidth, settings.textWidth);
 
-    imgui.SetNextWindowSize({ windowSize, -1 }, ImGuiCond_Always);
-	local windowFlags = bit.bor(ImGuiWindowFlags_NoDecoration, ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoFocusOnAppearing, ImGuiWindowFlags_NoNav, ImGuiWindowFlags_NoBackground, ImGuiWindowFlags_NoBringToFrontOnFocus);
-	if (gConfig.lockPositions) then
-		windowFlags = bit.bor(windowFlags, ImGuiWindowFlags_NoMove);
-	end
+    imgui.SetNextWindowSize({windowSize, -1}, ImGuiCond_Always);
+    local windowFlags = bit.bor(ImGuiWindowFlags_NoDecoration, ImGuiWindowFlags_AlwaysAutoResize,
+        ImGuiWindowFlags_NoFocusOnAppearing, ImGuiWindowFlags_NoNav, ImGuiWindowFlags_NoBackground,
+        ImGuiWindowFlags_NoBringToFrontOnFocus);
+    if (gConfig.lockPositions) then
+        windowFlags = bit.bor(windowFlags, ImGuiWindowFlags_NoMove);
+    end
     if (imgui.Begin('ExpBar', true, windowFlags)) then
 
-		-- Draw HP Bar
-		local startX, startY = imgui.GetCursorScreenPos();
+        -- Draw HP Bar
+        local startX, startY = imgui.GetCursorScreenPos();
         local col2X = startX + settings.textWidth - imgui.GetStyle().FramePadding.x * 2;
 
         local progressBarWidth = settings.barWidth - imgui.GetStyle().FramePadding.x * 2;
         if inlineMode then
             imgui.SetCursorScreenPos({col2X, startY});
         end
-		progressbar.ProgressBar({{progressBarProgress, {'#c39040', '#e9c466'}}}, {progressBarWidth, settings.barHeight}, {decorate = gConfig.showExpBarBookends});
+        progressbar.ProgressBar({{progressBarProgress, {'#c39040', '#e9c466'}}}, {progressBarWidth, settings.barHeight},
+            {
+                decorate = gConfig.showExpBarBookends
+            });
 
-		imgui.SameLine();
+        imgui.SameLine();
 
         local textY = inlineMode and startY or startY + settings.barHeight + settings.textOffsetY;
         local textXRightAlign = startX + settings.textWidth - imgui.GetStyle().FramePadding.x * 4;
 
-		-- Update our text objects
+        -- Update our text objects
 
         if gConfig.expBarShowText then
             -- Job Text
@@ -112,14 +121,19 @@ expbar.DrawWindow = function(settings)
             -- Exp Text
             if meritMode then
                 if jobLevel >= 99 then
-                    local expString = 'JP (' .. jobPoints[1] .. ' / ' .. jobPoints[2] .. ')' .. ' MP (' .. meritPoints[1] .. ' / ' .. meritPoints[2] .. ')' .. ' LP (' .. limitPoints[1] .. ' / ' .. limitPoints[2] .. ')';
+                    local expString = 'JP (' .. jobPoints[1] .. ' / ' .. jobPoints[2] .. ')' .. ' MP (' ..
+                                          meritPoints[1] .. ' / ' .. meritPoints[2] .. ')' .. ' LP (' .. limitPoints[1] ..
+                                          ' / ' .. limitPoints[2] .. ')';
                     expText:SetText(expString);
                 else
-                    local expString = 'MP (' .. meritPoints[1] .. ' / ' .. meritPoints[2] .. ')' .. ' LP (' .. limitPoints[1] .. ' / ' .. limitPoints[2] .. ')';
+                    local expString = 'MP (' .. meritPoints[1] .. ' / ' .. meritPoints[2] .. ')' .. ' LP (' ..
+                                          limitPoints[1] .. ' / ' .. limitPoints[2] .. ')';
                     expText:SetText(expString);
                 end
             elseif jobLevel >= 99 then
-                local expString = 'JP (' .. jobPoints[1] .. ' / ' .. jobPoints[2] .. ')' .. ' MP (' .. meritPoints[1] .. ' / ' .. meritPoints[2] .. ')' .. ' CP (' .. capPoints[1] .. ' / ' .. capPoints[2] .. ')';
+                local expString = 'JP (' .. jobPoints[1] .. ' / ' .. jobPoints[2] .. ')' .. ' MP (' .. meritPoints[1] ..
+                                      ' / ' .. meritPoints[2] .. ')' .. ' CP (' .. capPoints[1] .. ' / ' .. capPoints[2] ..
+                                      ')';
                 expText:SetText(expString);
             else
                 local expString = 'EXP (' .. expPoints[1] .. ' / ' .. expPoints[2] .. ')';
@@ -142,10 +156,11 @@ expbar.DrawWindow = function(settings)
         if gConfig.expBarShowPercent then
             local expPercentString = ('%.f'):fmt(progressBarProgress * 100);
             local percentString = expPercentString .. '%';
-            percentText:SetText(percentString); 
+            percentText:SetText(percentString);
             local textW, textH = percentText:get_text_size();
             local percentTextX = inlineMode and startX + windowSize or textXRightAlign;
-            local percentTextY = inlineMode and textY + (settings.barHeight - textH) / 2 - 1 or startY - settings.textOffsetY;
+            local percentTextY = inlineMode and textY + (settings.barHeight - textH) / 2 - 1 or startY -
+                                     settings.textOffsetY;
             percentText:SetAnchor(inlineMode and 0 or 2);
             percentText:SetPositionX(percentTextX + settings.percentOffsetX);
             percentText:SetPositionY(percentTextY);
@@ -158,34 +173,33 @@ expbar.DrawWindow = function(settings)
         end
 
     end
-	imgui.End();
+    imgui.End();
 end
-
 
 expbar.Initialize = function(settings)
     jobText = fonts.new(settings.job_font_settings);
-	expText = fonts.new(settings.exp_font_settings);
-	percentText = fonts.new(settings.percent_font_settings);
+    expText = fonts.new(settings.exp_font_settings);
+    percentText = fonts.new(settings.percent_font_settings);
 
     local player = AshitaCore:GetMemoryManager():GetPlayer();
-    expbar.limitPoints = { player:GetLimitPoints(), 10000 };
-    expbar.meritPoints = { player:GetMeritPoints(), player:GetMeritPointsMax() };
+    expbar.limitPoints = {player:GetLimitPoints(), 10000};
+    expbar.meritPoints = {player:GetMeritPoints(), player:GetMeritPointsMax()};
     local currJob = player:GetMainJob();
-    expbar.capacityPoints = { player:GetCapacityPoints(currJob), 30000 };
-    expbar.jobPoints = { player:GetJobPoints(currJob), 500 };
+    expbar.capacityPoints = {player:GetCapacityPoints(currJob), 30000};
+    expbar.jobPoints = {player:GetJobPoints(currJob), 500};
     -- expbar.mastery = { player:GetMasteryExp(), player:GetMasteryExpNeeded() };
 end
 
 expbar.UpdateFonts = function(settings)
     jobText:SetFontHeight(settings.job_font_settings.font_height);
-	expText:SetFontHeight(settings.exp_font_settings.font_height);
-	percentText:SetFontHeight(settings.percent_font_settings.font_height);
+    expText:SetFontHeight(settings.exp_font_settings.font_height);
+    percentText:SetFontHeight(settings.percent_font_settings.font_height);
 end
 
 expbar.SetHidden = function(hidden)
-	if (hidden == true) then
-		UpdateTextVisibility(false);
-	end
+    if (hidden == true) then
+        UpdateTextVisibility(false);
+    end
 end
 
 expbar.HandlePacket = function(e)

@@ -3,17 +3,17 @@ require('common');
 require('helpers');
 local buffTable = require('bufftable');
 
-local debuffHandler = 
-T{
+local debuffHandler = T {
     -- All enemies we have seen take a debuff
-    enemies = T{};
+    enemies = T {}
 };
 
 -- TO DO: Audit these messages for which ones are actually useful
-local statusOnMes = T{160, 164, 166, 186, 194, 203, 205, 230, 236, 266, 267, 268, 269, 237, 271, 272, 277, 278, 279, 280, 319, 320, 375, 412, 645, 754, 755, 804};
-local statusOffMes = T{206, 64, 159, 168, 204, 206, 321, 322, 341, 342, 343, 344, 350, 378, 531, 647, 805, 806};
-local deathMes = T{6, 20, 97, 113, 406, 605, 646};
-local spellDamageMes = T{2, 252, 264, 265};
+local statusOnMes = T {160, 164, 166, 186, 194, 203, 205, 230, 236, 266, 267, 268, 269, 237, 271, 272, 277, 278, 279,
+                       280, 319, 320, 375, 412, 645, 754, 755, 804};
+local statusOffMes = T {206, 64, 159, 168, 204, 206, 321, 322, 341, 342, 343, 344, 350, 378, 531, 647, 805, 806};
+local deathMes = T {6, 20, 97, 113, 406, 605, 646};
+local spellDamageMes = T {2, 252, 264, 265};
 
 local function ApplyMessage(debuffs, action)
 
@@ -29,9 +29,9 @@ local function ApplyMessage(debuffs, action)
             local spell = action.Param
             local message = ability.Message
             if (debuffs[target.Id] == nil) then
-                debuffs[target.Id] = T{};
+                debuffs[target.Id] = T {};
             end
-            
+
             -- Bio and Dia
             if action.Type == 4 and spellDamageMes:contains(message) then
                 local expiry = nil
@@ -77,7 +77,7 @@ local function ApplyMessage(debuffs, action)
                     debuffs[target.Id][buffId] = now + 5
                 elseif spell <= 229 and spell >= 220 then -- poison/2
                     debuffs[target.Id][buffId] = now + 120
-                -- Elemental debuffs
+                    -- Elemental debuffs
                 elseif spell == 239 then -- shock
                     debuffs[target.Id][buffId] = now + 120
                 elseif spell == 238 then -- rasp
@@ -90,7 +90,7 @@ local function ApplyMessage(debuffs, action)
                     debuffs[target.Id][buffId] = now + 120
                 elseif spell == 240 then -- drown
                     debuffs[target.Id][buffId] = now + 120
-                else                                        -- Handle unknown status effect @ 5 minutes
+                else -- Handle unknown status effect @ 5 minutes
                     debuffs[target.Id][buffId] = now + 300;
                 end
             end
@@ -132,7 +132,7 @@ debuffHandler.GetActiveDebuffs = function(serverId)
         return nil
     end
     local returnTable = {};
-    for k,v in pairs(debuffHandler.enemies[serverId]) do
+    for k, v in pairs(debuffHandler.enemies[serverId]) do
         if (v ~= 0 and v > os.time()) then
             table.insert(returnTable, k);
         end
